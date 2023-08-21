@@ -1,0 +1,11 @@
+<div class="navbar">
+    {% if request.user.is_authenticated %}
+        <div class="logout">
+            <a href="{% url 'App:logout' %}">Log Out</a>
+        </div>
+    {% else %}
+        <div class="login">
+            <a href="{% url 'App:login' %}">Log In</a>
+        </div>
+    {% endif %}
+</div>
