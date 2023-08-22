@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'MusicPlayer.apps.MusicplayerConfig'
+    'MusicPlayer.apps.MusicplayerConfig',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +118,5 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'App:login'
