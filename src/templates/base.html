@@ -10,10 +10,37 @@
   <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.7/mediaelementplayer.min.css" rel="stylesheet"/>
   <link href="{% static './style.css' %}" rel="stylesheet"/>
+   
  </head>
  <body>
     {% include 'navbar.html' %}
     {% block content %}
     {% endblock %}
+    
+    <script>
+      let audioNL = document.querySelectorAll('audio');
+      let audio = Array.apply(null, audioNL);
+
+      audio.forEach(t => {
+         let index = audio.indexOf(t);
+
+         t.addEventListener('play', () => {
+            audio.forEach(subT => {
+                  subT !== audio[index] ?
+                  (subT.pause(), subT.currentTime = 0) : 
+                  subT.play()
+            })
+         })
+         t.addEventListener('ended', () => {
+            t.currentTime = 0;
+            index !== audio.length - 1 ?
+               audio[index + 1].play() :
+               audio[0].play
+         
+         })
+      });
+      
+      
+   </script>  
  </body>
 </html>

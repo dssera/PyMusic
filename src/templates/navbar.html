@@ -3,9 +3,23 @@
         <div class="logout">
             <a href="{% url 'App:logout' %}">Log Out</a>
         </div>
+        {% if request.path == '/music/' %}
+        <div>
+            <a href="{% url 'App:personal_music' username=request.user.username %}">to your music</a>
+        </div>
+        {% elif request.path == '/music/'|add:request.user.username|add:'/' %}
+        <div>
+            <a href="{% url 'App:index' %}">to all music</a>
+        </div>
+        {% endif %}
     {% else %}
         <div class="login">
             <a href="{% url 'App:login' %}">Log In</a>
         </div>
     {% endif %}
+        <div class="search">
+            <form action="" method="GET">
+                <input type="text" name="q" id="">
+            </form>
+        </div>
 </div>

@@ -1,0 +1,20 @@
+{% extends 'MusicPlayer/music_list_base.html' %}
+
+{% block info %}
+<div class="info">
+    asddfds
+    {% if request.user == username %}
+        <p>Your music</p>
+    {% else %}
+        <p>{{username}}'s music</p>
+    {% endif %}
+</div>
+{% endblock info %}
+
+{% block content %}
+<div class="music-list">
+    {% for song in page_obj %}
+        {% include 'components/song_component.html' %}
+    {% endfor %}
+</div>
+{% endblock content %}

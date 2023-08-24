@@ -1,0 +1,18 @@
+<div class="song-{{song.id}}">
+    <p>{{song.audio_file.name}}</p>
+    <audio controls>
+    <source src="http://127.0.0.1:8000{{song.audio_file.url}}" type="audio/mpeg">
+    error
+    </audio>
+    <form action="{% url 'App:add_song' song.id %}" method="POST">
+        {% csrf_token %}
+        <input type='submit' name='example' value="+"/>
+    </form>
+    <form action="{% url 'App:remove_song' song.id %}" method="POST">
+        {% csrf_token %}
+        <input type='submit' name='example' value="-"/>
+    </form>
+    <!-- <button value="add"></button>
+    <button value="delete">-</button> -->
+    
+</div>
