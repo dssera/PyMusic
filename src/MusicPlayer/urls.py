@@ -11,7 +11,5 @@ urlpatterns = [
     path('register/', views.sign_up, name='register'),
 
     path('music/', views.index, name='index'),
-    path('music/add_song/<int:song_id>/', views.add_song_view, name='add_song'),
-    path('music/remove_song/<int:song_id>/', views.remove_song_view, name='remove_song'),
     path('music/<str:username>/', views.personal_music_view, name='personal_music'),
 ]

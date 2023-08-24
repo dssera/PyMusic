@@ -22,6 +22,7 @@
       let audio = Array.apply(null, audioNL);
 
       audio.forEach(t => {
+         t.volume = 0.3
          let index = audio.indexOf(t);
 
          t.addEventListener('play', () => {
@@ -40,6 +41,7 @@
          })
       });
       
+
       
    </script>  
  </body>

@@ -4,15 +4,19 @@
     <source src="http://127.0.0.1:8000{{song.audio_file.url}}" type="audio/mpeg">
     error
     </audio>
-    <form action="{% url 'App:add_song' song.id %}" method="POST">
+    {% if request.user not in song.listeners.all %}
+    <form action="{{request.path}}" method="POST">
         {% csrf_token %}
         <input type='submit' name='example' value="+"/>
+        <input type="hidden" name="song_id" value="{{song.id}}">
+        <input type="hidden" name="change_song_status" value="add">
     </form>
-    <form action="{% url 'App:remove_song' song.id %}" method="POST">
+    {% else %}
+    <form action="{{request.path}}" method="POST">
         {% csrf_token %}
         <input type='submit' name='example' value="-"/>
+        <input type="hidden" name="song_id" value="{{song.id}}">
+        <input type="hidden" name="change_song_status" value="remove">
     </form>
-    <!-- <button value="add"></button>
-    <button value="delete">-</button> -->
-    
+    {% endif %}
 </div>

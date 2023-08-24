@@ -1,42 +1,41 @@
-from django.http import HttpResponse, HttpRequest
+from typing import Union
+
+from django.http import HttpResponse, HttpRequest, Http404
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.models import QuerySet
 
 from .models import Song
 from .forms import RegisterForm, LoginForm
 
 
 @login_required
-def add_song_view(request, song_id):
+def personal_music_view(request: HttpRequest, username: str):
     if request.method == 'POST':
-        # uniqueness validation 
-        song = Song.objects.get(id=song_id)
-        song.listeners.add(request.user)
-        # return redirect(f'App:index')
-        return redirect('/music/' + request.user.username)
-    else:
-        return HttpResponse('You did GET request but POST request is required')
+        change_song_status = request.POST.get('change_song_status')
+        print(change_song_status)
+        song_id = request.POST.get('song_id')
+        print(song_id)
 
-@login_required
-def remove_song_view(request, song_id):
-    if request.method == 'POST':
-        # uniqueness validation 
-        song = Song.objects.get(id=song_id)
-        song.listeners.remove(request.user)
-        return redirect('/music/' + request.user.username)
-    else:
-        return HttpResponse('You did GET request but POST request is required')
+        if song_id:
+            if change_song_status == 'add':
+                __add_song(request, song_id)
+            elif change_song_status == 'remove':
+                __remove_song(request, song_id)
+            else:
+                raise Http404
+        else:
+            raise Http404
+        return redirect(request.path)
 
-
-@login_required
-def personal_music_view(request, username, song_id=None):
     if request.method == 'GET':
         if request.user.username == username:
             songs = Song.objects.filter(listeners__id=request.user.id)
+            songs = __get_filtered_songs(request, 'q', songs)
             paginator= Paginator(songs, 10)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
@@ -46,35 +45,69 @@ def personal_music_view(request, username, song_id=None):
         else:
             return HttpResponse("You cannot access this page")
     
-    # if request.method == 'POST':
-    #     # uniqueness validation
-    #     if song_id is None:
-    #         return HttpResponse('Я должен был кидать пост запрос с \
-    #                             аргументом song_id но я хз как правильно это сделать ')
-    #     print(request.POST.get('song_id'))
-    #     song = Song.objects.get(id=request.POST.get('song_id'))
-    #     song.listeners.add(request.user)
-    #     return redirect(request.path)
-
 
 def index(request: HttpRequest):
-    q = request.GET.get('q')
+    if request.method == 'POST':
+        change_song_status = request.POST.get('change_song_status')
+        song_id = request.POST.get('song_id')
 
-    if q is not None:
-        songs = Song.objects.filter(title__startswith=q)
-        print(songs)
-    elif q is None:
+        if song_id:
+            if change_song_status == 'add':
+                __add_song(request, song_id)
+            elif change_song_status == 'remove':
+                __remove_song(request, song_id)
+            else:
+                raise Http404
+        else:
+            raise Http404
+        return redirect(request.path)
+        
+    if request.method == 'GET':
+        songs = __get_filtered_songs(request, 'q')
+        
+        paginator = Paginator(songs, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = {'page_obj': page_obj}
+        return render(request, 'MusicPlayer/common_music_list.html', context)
+
+@login_required
+def __add_song(request, song_id):
+    if request.method == 'POST':
+        # uniqueness validation 
+        song = Song.objects.get(id=song_id)
+        song.listeners.add(request.user)
+        return redirect('/music/' + request.user.username)
+    else:
+        return HttpResponse('You did GET request but POST request is required')
+
+
+@login_required
+def __remove_song(request, song_id):
+    if request.method == 'POST':
+        # uniqueness validation 
+        song = Song.objects.get(id=song_id)
+        song.listeners.remove(request.user)
+        return redirect('/music/' + request.user.username)
+    else:
+        return HttpResponse('You did GET request but POST request is required')
+
+
+def __get_filtered_songs(request: HttpRequest, 
+                         search_arg: str, 
+                         given_songs: QuerySet=None) -> Union[QuerySet, None]:
+    '''Returns songs filtered by the search argument among all songs in db, or among given_songs if provided'''
+    q = request.GET.get(search_arg, '')
+
+    if given_songs is None:
         songs = Song.objects.all()
-
+    else:
+        songs = given_songs
+    if q:
+        songs = songs.filter(title__startswith=q)
+    return songs
     
-    paginator = Paginator(songs, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {'page_obj': page_obj}
-    return render(request, 'MusicPlayer/common_music_list.html', context)
-
-
-
 
 def sign_up(request):
     if request.method == 'GET':
